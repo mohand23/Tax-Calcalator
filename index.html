@@ -3,22 +3,39 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tax Refund Estimator 2024</title>
+  <title>Advanced Tax Refund Estimator 2024</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Simple step transition */
+    .step { display: none; }
+    .step.active { display: block; }
+  </style>
 </head>
 <body class="bg-gray-100">
   <div class="max-w-4xl mx-auto p-4">
-    <h1 class="text-3xl font-bold text-center mb-6">Tax Refund Estimator 2024</h1>
-    <div id="estimator" class="bg-white shadow rounded p-6">
+    <h1 class="text-3xl font-bold text-center mb-6">Advanced Tax Refund Estimator 2024</h1>
+    
+    <!-- Progress Indicator -->
+    <div id="progressIndicator" class="flex justify-between mb-6">
+      <div class="step-indicator text-xs text-gray-700" data-step="0">1. Filing Info</div>
+      <div class="step-indicator text-xs text-gray-700" data-step="1">2. Income & Deductions</div>
+      <div class="step-indicator text-xs text-gray-700" data-step="2">3. Withholdings & Taxes</div>
+      <div class="step-indicator text-xs text-gray-700" data-step="3">4. AMT Details</div>
+      <div class="step-indicator text-xs text-gray-700" data-step="4">5. Recommendations</div>
+      <div class="step-indicator text-xs text-gray-700" data-step="5">6. Summary</div>
+    </div>
+    
+    <!-- Multi-Step Form -->
+    <form id="taxForm" class="bg-white shadow rounded p-6">
       
-      <!-- Step 1: Filing Status & Personal Information -->
-      <div class="mb-4">
-        <h2 class="text-xl font-semibold mb-2">Step 1: Filing Status & Personal Information</h2>
-        <div class="mb-2">
+      <!-- Step 1: Filing Information -->
+      <div class="step active" data-step="0">
+        <h2 class="text-xl font-semibold mb-4">Step 1: Filing Information</h2>
+        <div class="mb-4">
           <label for="filingStatus" class="block text-sm font-medium text-gray-700">
             Filing Status
-            <span class="text-blue-500 cursor-help" title="Select your filing status: Single, Married Filing Jointly, Married Filing Separately, Head of Household.">?</span>
+            <span class="text-blue-500 cursor-help" title="Select your filing status: Single, Married Filing Jointly, Married Filing Separately, or Head of Household.">?</span>
           </label>
           <select id="filingStatus" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
             <option value="single">Single</option>
@@ -27,13 +44,14 @@
             <option value="hoh">Head of Household</option>
           </select>
         </div>
-        <div class="mb-2">
+        <div class="mb-4">
           <label for="stateSelect" class="block text-sm font-medium text-gray-700">
             State of Residence
             <span class="text-blue-500 cursor-help" title="Select your state for state tax calculations.">?</span>
           </label>
           <select id="stateSelect" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
             <option value="">Select a state</option>
+            <!-- All 50 states -->
             <option value="AL">Alabama</option>
             <option value="AK">Alaska</option>
             <option value="AZ">Arizona</option>
@@ -86,74 +104,109 @@
             <option value="WY">Wyoming</option>
           </select>
         </div>
+        <div class="flex justify-end">
+          <button type="button" class="nextBtn bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Next</button>
+        </div>
       </div>
-
+      
       <!-- Step 2: Income & Deductions -->
-      <div class="mb-4">
-        <h2 class="text-xl font-semibold mb-2">Step 2: Income & Deductions</h2>
-        <div class="mb-2">
+      <div class="step" data-step="1">
+        <h2 class="text-xl font-semibold mb-4">Step 2: Income & Deductions</h2>
+        <div class="mb-4">
           <label for="income" class="block text-sm font-medium text-gray-700">
             Total Income ($)
-            <span class="text-blue-500 cursor-help" title="Enter your total income before taxes.">?</span>
+            <span class="text-blue-500 cursor-help" title="Enter your total income before taxes (wages, salaries, tips, etc.).">?</span>
           </label>
           <input type="number" id="income" placeholder="e.g., 50000" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" />
         </div>
-        <div class="mb-2">
+        <div class="mb-4">
           <label for="deductions" class="block text-sm font-medium text-gray-700">
             Total Deductions ($)
             <span class="text-blue-500 cursor-help" title="Enter your total deductions (either standard or itemized).">?</span>
           </label>
           <input type="number" id="deductions" placeholder="e.g., 12000" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" />
+          <p class="text-xs text-gray-500 mt-1">If unsure, the standard deduction for 2024 will be used based on filing status.</p>
+        </div>
+        <div class="flex justify-between">
+          <button type="button" class="prevBtn bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">Back</button>
+          <button type="button" class="nextBtn bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Next</button>
         </div>
       </div>
-
+      
       <!-- Step 3: Withholdings & Additional Taxes -->
-      <div class="mb-4">
-        <h2 class="text-xl font-semibold mb-2">Step 3: Withholdings & Additional Taxes</h2>
-        <div class="mb-2">
+      <div class="step" data-step="2">
+        <h2 class="text-xl font-semibold mb-4">Step 3: Withholdings & Additional Taxes</h2>
+        <div class="mb-4">
           <label for="withholdings" class="block text-sm font-medium text-gray-700">
-            Tax Withholdings ($)
-            <span class="text-blue-500 cursor-help" title="Enter the total federal tax withheld.">?</span>
+            Federal Tax Withholdings ($)
+            <span class="text-blue-500 cursor-help" title="Enter the total federal tax withheld from your paychecks.">?</span>
           </label>
           <input type="number" id="withholdings" placeholder="e.g., 6000" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" />
         </div>
-        <div class="mb-2">
+        <div class="mb-4">
           <label for="socialTax" class="block text-sm font-medium text-gray-700">
             Social Security & Medicare Taxes ($)
-            <span class="text-blue-500 cursor-help" title="Enter your Social Security & Medicare taxes if applicable.">?</span>
+            <span class="text-blue-500 cursor-help" title="Enter your Social Security & Medicare taxes if available. If blank, the estimator will calculate them.">?</span>
           </label>
           <input type="number" id="socialTax" placeholder="e.g., 4000" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" />
         </div>
+        <div class="flex justify-between">
+          <button type="button" class="prevBtn bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">Back</button>
+          <button type="button" class="nextBtn bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Next</button>
+        </div>
       </div>
-
+      
       <!-- Step 4: Alternative Minimum Tax (AMT) -->
-      <div class="mb-4">
-        <h2 class="text-xl font-semibold mb-2">Step 4: Alternative Minimum Tax (AMT)</h2>
-        <div class="mb-2">
+      <div class="step" data-step="3">
+        <h2 class="text-xl font-semibold mb-4">Step 4: Alternative Minimum Tax (AMT)</h2>
+        <div class="mb-4">
           <label for="amtIncome" class="block text-sm font-medium text-gray-700">
             AMT Adjusted Income ($)
-            <span class="text-blue-500 cursor-help" title="Enter your AMT adjusted income if applicable.">?</span>
+            <span class="text-blue-500 cursor-help" title="If you have AMT adjustments, enter your AMT adjusted income. Otherwise, leave blank.">?</span>
           </label>
           <input type="number" id="amtIncome" placeholder="e.g., 50000" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" />
         </div>
-      </div>
-
-      <!-- Tax Summary & Actions -->
-      <div class="mt-6 p-4 bg-gray-50 rounded">
-        <h2 class="text-xl font-semibold mb-2">Tax Summary</h2>
-        <div id="taxSummary" class="text-lg font-medium">
-          Please fill in the details above.
-        </div>
-        <div class="mt-4">
-          <button id="printBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-            Print Summary
-          </button>
-          <button id="exportBtn" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 ml-2">
-            Export Data
-          </button>
+        <p class="text-xs text-gray-500 mb-4">If you’re not subject to AMT, you can leave this blank.</p>
+        <div class="flex justify-between">
+          <button type="button" class="prevBtn bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">Back</button>
+          <button type="button" class="nextBtn bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Next</button>
         </div>
       </div>
-    </div>
+      
+      <!-- Step 5: Smart Recommendations -->
+      <div class="step" data-step="4">
+        <h2 class="text-xl font-semibold mb-4">Step 5: Smart Recommendations</h2>
+        <p class="text-sm text-gray-700 mb-4">
+          Based on the information provided, we will suggest potential credits and deductions you may be eligible for.
+        </p>
+        <div id="recommendations" class="p-4 bg-gray-50 rounded border border-dashed border-gray-300 text-sm text-gray-600">
+          <!-- Dynamic recommendations will appear here -->
+          <em>Your recommendations will appear here after you click "Next."</em>
+        </div>
+        <div class="flex justify-between mt-4">
+          <button type="button" class="prevBtn bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">Back</button>
+          <button type="button" class="nextBtn bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Next</button>
+        </div>
+      </div>
+      
+      <!-- Step 6: Summary & Actions -->
+      <div class="step" data-step="5">
+        <h2 class="text-xl font-semibold mb-4">Step 6: Summary & Actions</h2>
+        <div id="taxSummary" class="p-4 bg-gray-50 rounded border border-gray-300 text-gray-700">
+          <p>Please review your details and the calculated summary below.</p>
+        </div>
+        <div class="mt-4 flex flex-col sm:flex-row sm:justify-end gap-2">
+          <button type="button" id="printBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Print Summary</button>
+          <button type="button" id="exportBtn" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Export Data</button>
+        </div>
+        <div class="flex justify-start mt-4">
+          <button type="button" class="prevBtn bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">Back</button>
+        </div>
+      </div>
+      
+    </form>
+    
+    <!-- Disclaimer -->
     <div class="mt-6 text-sm text-gray-600">
       <p>Disclaimer: This estimator is for informational purposes only. Always consult a tax professional for official advice.</p>
       <p class="mt-2 text-red-600 font-bold">Warning: Ensure accuracy to avoid common IRS audit risks.</p>
@@ -161,7 +214,17 @@
   </div>
 
   <script>
-    // --- Federal Tax Brackets for 2024 (Simplified Example) ---
+    // ---------- Data & Configuration ----------
+
+    // Standard Deductions for 2024 (for demonstration)
+    const standardDeductions = {
+      single: 13850,
+      mfj: 27700,
+      mfs: 13850,
+      hoh: 20800
+    };
+
+    // Federal Tax Brackets for 2024 (Simplified Example)
     const federalTaxBrackets = {
       single: [
         { rate: 0.10, cap: 11000 },
@@ -201,8 +264,7 @@
       ]
     };
 
-    // --- Simplified State Tax Rates (Example Data) ---
-    // Note: Real state taxes are often progressive. Here we use flat rates for demonstration.
+    // Simplified Flat-State Tax Rates (for demonstration; real rates may be progressive)
     const stateTaxRates = {
       AL: 0.05,
       AK: 0.00,
@@ -232,7 +294,7 @@
       MT: 0.06,
       NE: 0.0684,
       NV: 0.00,
-      NH: 0.05, // Only on interest & dividends
+      NH: 0.05, // Interest & dividends only
       NJ: 0.0637,
       NM: 0.049,
       NY: 0.0685,
@@ -256,7 +318,49 @@
       WY: 0.00
     };
 
-    // --- Function: Calculate Federal Tax ---
+    // ---------- Multi-Step Form Navigation ----------
+    const steps = document.querySelectorAll('.step');
+    const indicators = document.querySelectorAll('.step-indicator');
+    let currentStep = 0;
+
+    document.querySelectorAll('.nextBtn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (currentStep < steps.length - 1) {
+          currentStep++;
+          updateSteps();
+          if (currentStep === 4) {
+            // Update recommendations when entering step 5.
+            updateRecommendations();
+          }
+          if (currentStep === 5) {
+            // Calculate summary when entering final step.
+            updateCalculations();
+          }
+        }
+      });
+    });
+
+    document.querySelectorAll('.prevBtn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (currentStep > 0) {
+          currentStep--;
+          updateSteps();
+        }
+      });
+    });
+
+    function updateSteps() {
+      steps.forEach((step, index) => {
+        step.classList.toggle('active', index === currentStep);
+      });
+      indicators.forEach((ind, index) => {
+        ind.classList.toggle('font-bold', index === currentStep);
+      });
+    }
+
+    // ---------- Calculation Functions ----------
+
+    // Calculate Federal Tax using progressive brackets.
     function calculateFederalTax(taxableIncome, status) {
       const brackets = federalTaxBrackets[status];
       let tax = 0;
@@ -273,90 +377,124 @@
       return tax;
     }
 
-    // --- Function: Calculate AMT (Simplified) ---
+    // Calculate AMT tax (simplified example).
     function calculateAMT(amtIncome) {
-      // For demonstration: 26% on the first $220,700, then 28% on the remainder.
+      // 26% on the first $220,700; 28% thereafter.
       if (amtIncome <= 220700) {
         return amtIncome * 0.26;
       } else {
-        return 220700 * 0.26 + (amtIncome - 220700) * 0.28;
+        return (220700 * 0.26) + ((amtIncome - 220700) * 0.28);
       }
     }
 
-    // --- Function: Calculate Social Security & Medicare Taxes ---
+    // Calculate Social Security & Medicare Taxes (FICA).
     function calculateFICA(income) {
-      // Simplified: 6.2% Social Security (up to wage base) and 1.45% Medicare (no cap)
-      const socialSecurityWageBase = 160200; // 2024 wage base
+      const socialSecurityWageBase = 160200; // 2024 wage base.
       const socialSecurityTax = Math.min(income, socialSecurityWageBase) * 0.062;
       const medicareTax = income * 0.0145;
       return socialSecurityTax + medicareTax;
     }
 
-    // --- Main Calculation Function ---
+    // Provide smart recommendations based on input.
+    function updateRecommendations() {
+      const income = parseFloat(document.getElementById('income').value) || 0;
+      const deductions = parseFloat(document.getElementById('deductions').value) || 0;
+      const filingStatus = document.getElementById('filingStatus').value;
+      const recDiv = document.getElementById('recommendations');
+      let recommendations = [];
+
+      // Example recommendation: Check if using standard vs. itemized deduction.
+      const standard = standardDeductions[filingStatus] || 0;
+      if (deductions < standard) {
+        recommendations.push(`You may consider taking the standard deduction of $${standard} rather than itemizing.`);
+      } else {
+        recommendations.push("Your itemized deductions appear to exceed the standard deduction.");
+      }
+
+      // Earned Income Credit recommendation (simplified criteria)
+      if (income < 50000 && filingStatus === 'single') {
+        recommendations.push("You might be eligible for the Earned Income Tax Credit.");
+      }
+
+      // Child Tax Credit hint (this is an example; real criteria will be more detailed)
+      recommendations.push("Review eligibility for the Child Tax Credit if you have qualifying dependents.");
+
+      // Additional audit risk warning if deductions are unusually high.
+      if (deductions > income * 0.8) {
+        recommendations.push("<span class='text-red-600 font-bold'>Audit Risk Warning:</span> Your deductions are very high relative to your income. Double-check your entries.");
+      }
+
+      recDiv.innerHTML = recommendations.map(rec => `<p>${rec}</p>`).join('');
+    }
+
+    // Main calculation to update the summary.
     function updateCalculations() {
       const filingStatus = document.getElementById('filingStatus').value;
       const income = parseFloat(document.getElementById('income').value) || 0;
-      const deductions = parseFloat(document.getElementById('deductions').value) || 0;
+      let deductions = parseFloat(document.getElementById('deductions').value);
       const withholdings = parseFloat(document.getElementById('withholdings').value) || 0;
       const socialTaxInput = parseFloat(document.getElementById('socialTax').value) || 0;
       const amtIncome = parseFloat(document.getElementById('amtIncome').value) || 0;
       const state = document.getElementById('stateSelect').value;
 
-      // Compute taxable income (simplified)
+      // If no itemized deductions provided, use standard deduction.
+      if (!deductions || deductions < 1) {
+        deductions = standardDeductions[filingStatus] || 0;
+      }
+
+      // Calculate taxable income (simplified).
       const taxableIncome = Math.max(income - deductions, 0);
-
-      // Federal tax using standard brackets
       const federalTax = calculateFederalTax(taxableIncome, filingStatus);
-
-      // AMT: if provided, calculate and use the higher of regular tax and AMT.
       const amtTax = amtIncome > 0 ? calculateAMT(amtIncome) : 0;
+      // Use higher of regular tax and AMT.
       const totalFederalTax = Math.max(federalTax, amtTax);
-
-      // FICA: use user input if provided; otherwise, calculate.
+      // FICA calculation.
       const ficaTax = socialTaxInput || calculateFICA(income);
-
-      // State tax: based on a flat rate multiplied by taxable income.
+      // State tax (using a flat rate from our simplified list).
       let stateTax = 0;
       if (state && stateTaxRates.hasOwnProperty(state)) {
         stateTax = taxableIncome * stateTaxRates[state];
       }
 
-      // Total Tax Liability
       const totalTaxLiability = totalFederalTax + stateTax + ficaTax;
-
-      // Determine refund (or amount owed)
       const refundOrOwed = withholdings - totalTaxLiability;
 
-      // Update display with visual indicators
-      const taxSummaryDiv = document.getElementById('taxSummary');
-      let resultHTML = `<p>Taxable Income: $${taxableIncome.toFixed(2)}</p>`;
-      resultHTML += `<p>Federal Tax: $${federalTax.toFixed(2)}</p>`;
+      // Build summary with visual indicators.
+      let summaryHTML = `<p><strong>Taxable Income:</strong> $${taxableIncome.toFixed(2)}</p>`;
+      summaryHTML += `<p><strong>Federal Tax:</strong> $${federalTax.toFixed(2)}</p>`;
       if (amtTax > federalTax) {
-        resultHTML += `<p class="text-orange-600">AMT Applied: $${amtTax.toFixed(2)}</p>`;
+        summaryHTML += `<p class="text-orange-600"><strong>AMT Applied:</strong> $${amtTax.toFixed(2)}</p>`;
       }
-      resultHTML += `<p>State Tax: $${stateTax.toFixed(2)}</p>`;
-      resultHTML += `<p>Social Security & Medicare Taxes: $${ficaTax.toFixed(2)}</p>`;
-      resultHTML += `<p><strong>Total Tax Liability: $${totalTaxLiability.toFixed(2)}</strong></p>`;
+      summaryHTML += `<p><strong>State Tax:</strong> $${stateTax.toFixed(2)}</p>`;
+      summaryHTML += `<p><strong>Social Security & Medicare Taxes:</strong> $${ficaTax.toFixed(2)}</p>`;
+      summaryHTML += `<p class="mt-2 border-t pt-2"><strong>Total Tax Liability:</strong> $${totalTaxLiability.toFixed(2)}</p>`;
+      
       if (refundOrOwed >= 0) {
-        resultHTML += `<p class="text-green-600 font-bold">Expected Refund: $${refundOrOwed.toFixed(2)}</p>`;
+        summaryHTML += `<p class="mt-2 text-green-600 font-bold">Expected Refund: $${refundOrOwed.toFixed(2)}</p>`;
       } else {
-        resultHTML += `<p class="text-red-600 font-bold">Tax Owed: $${Math.abs(refundOrOwed).toFixed(2)}</p>`;
+        summaryHTML += `<p class="mt-2 text-red-600 font-bold">Tax Owed: $${Math.abs(refundOrOwed).toFixed(2)}</p>`;
       }
-      taxSummaryDiv.innerHTML = resultHTML;
+      
+      document.getElementById('taxSummary').innerHTML = summaryHTML;
     }
 
-    // --- Event Listeners for Real-Time Updates ---
-    document.querySelectorAll('#estimator input, #estimator select').forEach(el => {
-      el.addEventListener('input', updateCalculations);
-      el.addEventListener('change', updateCalculations);
+    // ---------- Real-Time Update Event Listeners ----------
+    // For inputs that affect calculations, update as the user types.
+    document.querySelectorAll('#taxForm input, #taxForm select').forEach(el => {
+      el.addEventListener('input', () => {
+        // Only update summary if on the final step.
+        if (currentStep === 5) updateCalculations();
+      });
+      el.addEventListener('change', () => {
+        if (currentStep === 5) updateCalculations();
+      });
     });
 
-    // --- Print Summary Functionality ---
+    // ---------- Print and Export Functionality ----------
     document.getElementById('printBtn').addEventListener('click', () => {
       window.print();
     });
 
-    // --- Export Data Functionality ---
     document.getElementById('exportBtn').addEventListener('click', () => {
       const data = {
         filingStatus: document.getElementById('filingStatus').value,
@@ -373,9 +511,6 @@
       dlAnchorElem.setAttribute("download", "tax_data.json");
       dlAnchorElem.click();
     });
-
-    // Initial calculation to populate summary on load.
-    updateCalculations();
   </script>
 </body>
 </html>
