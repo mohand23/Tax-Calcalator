@@ -1,539 +1,175 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Advanced Intelligent Tax Refund Estimator 2024</title>
-  <!-- Tailwind CSS CDN -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tax Refund Estimator</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* Hide steps by default */
-    .step { display: none; }
-    .step.active { display: block; }
+    .tooltip {
+      position: relative;
+      display: inline-block;
+    }
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 200px;
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
   </style>
 </head>
-<body class="bg-gray-50">
-  <div class="max-w-4xl mx-auto p-4">
-    <h1 class="text-3xl font-bold text-center mb-6">Advanced Tax Refund Estimator 2024</h1>
-    
-    <!-- Progress Indicator -->
-    <div id="progressIndicator" class="flex justify-between mb-6">
-      <div class="step-indicator text-xs text-gray-700" data-step="0">1. Filing Info</div>
-      <div class="step-indicator text-xs text-gray-700" data-step="1">2. Income & OCR</div>
-      <div class="step-indicator text-xs text-gray-700" data-step="2">3. Withholdings & Dependents</div>
-      <div class="step-indicator text-xs text-gray-700" data-step="3">4. AMT & SE Tax</div>
-      <div class="step-indicator text-xs text-gray-700" data-step="4">5. Projections & Tips</div>
-      <div class="step-indicator text-xs text-gray-700" data-step="5">6. Summary</div>
-    </div>
-    
-    <!-- Multi-Step Form -->
-    <form id="taxForm" class="bg-white shadow rounded p-6 space-y-6" novalidate>
-      
-      <!-- Step 1: Filing Information & Intelligent Inputs -->
-      <div class="step active" data-step="0">
-        <h2 class="text-xl font-semibold mb-4">Step 1: Filing Information</h2>
-        <div class="mb-4">
-          <label for="filingStatus" class="block text-sm font-medium text-gray-700">
-            Filing Status 
-            <span class="text-blue-500 cursor-help" title="Select Single, Married Filing Jointly (MFJ), Married Filing Separately (MFS), or Head of Household (HoH).">?</span>
-          </label>
-          <select id="filingStatus" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
-            <option value="single">Single</option>
-            <option value="mfj">Married Filing Jointly</option>
-            <option value="mfs">Married Filing Separately</option>
-            <option value="hoh">Head of Household</option>
-          </select>
-        </div>
-        
-        <!-- ZIP Code & Auto-detect State -->
-        <div class="mb-4">
-          <label for="zipCode" class="block text-sm font-medium text-gray-700">
-            ZIP Code
-            <span class="text-blue-500 cursor-help" title="Enter your ZIP code to auto-detect your state.">?</span>
-          </label>
-          <input type="text" id="zipCode" placeholder="e.g., 90210" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required />
-          <p id="stateAuto" class="mt-1 text-sm text-gray-500"></p>
-        </div>
-        
-        <!-- Self-Employment Option -->
-        <div class="mb-4 flex items-center">
-          <input type="checkbox" id="selfEmployed" class="mr-2" />
-          <label for="selfEmployed" class="text-sm text-gray-700">
-            I am self-employed
-          </label>
-        </div>
-        <!-- Business Expense Deductions (shown if self-employed) -->
-        <div id="businessExpensesDiv" class="mb-4 hidden">
-          <label for="businessExpenses" class="block text-sm font-medium text-gray-700">
-            Business Expense Deductions ($)
-            <span class="text-blue-500 cursor-help" title="Enter your business expenses if you are self-employed.">?</span>
-          </label>
-          <input type="number" id="businessExpenses" placeholder="e.g., 5000" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" min="0" />
-        </div>
-        
-        <div class="flex justify-end">
-          <button type="button" class="nextBtn bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Next</button>
-        </div>
-      </div>
-      
-      <!-- Step 2: Income, Deductions & OCR Upload -->
-      <div class="step" data-step="1">
-        <h2 class="text-xl font-semibold mb-4">Step 2: Income & Deductions</h2>
-        <div class="mb-4">
-          <label for="income" class="block text-sm font-medium text-gray-700">
-            Total Income ($)
-            <span class="text-blue-500 cursor-help" title="Enter your total income from wages, salaries, tips, etc.">?</span>
-          </label>
-          <input type="number" id="income" placeholder="e.g., 50000" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" min="0" required />
-        </div>
-        <div class="mb-4">
-          <label for="deductions" class="block text-sm font-medium text-gray-700">
-            Total Deductions ($)
-            <span class="text-blue-500 cursor-help" title="Enter your total deductions (if left blank, the standard deduction is applied).">?</span>
-          </label>
-          <input type="number" id="deductions" placeholder="e.g., 12000" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" min="0" />
-          <p class="text-xs text-gray-500 mt-1">Standard deduction will be applied if left blank.</p>
-        </div>
-        <!-- OCR Upload for W-2, 1099, or pay stub -->
-        <div class="mb-4">
-          <label for="ocrUpload" class="block text-sm font-medium text-gray-700">
-            Upload W‑2/1099/Pay Stub (OCR)
-            <span class="text-blue-500 cursor-help" title="Upload a document to auto‑fill income and withholdings.">?</span>
-          </label>
-          <input type="file" id="ocrUpload" class="mt-1 block w-full" accept=".pdf,.jpg,.png" />
-          <p class="text-xs text-gray-500 mt-1">In production, this uses secure OCR processing to auto‑fill fields.</p>
-        </div>
-        <div class="flex justify-between">
-          <button type="button" class="prevBtn bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">Back</button>
-          <button type="button" class="nextBtn bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Next</button>
-        </div>
-      </div>
-      
-      <!-- Step 3: Withholdings & Dependents -->
-      <div class="step" data-step="2">
-        <h2 class="text-xl font-semibold mb-4">Step 3: Withholdings & Dependents</h2>
-        <div class="mb-4">
-          <label for="withholdings" class="block text-sm font-medium text-gray-700">
-            Federal Tax Withholdings ($)
-            <span class="text-blue-500 cursor-help" title="Enter the total federal tax withheld from your paychecks.">?</span>
-          </label>
-          <input type="number" id="withholdings" placeholder="e.g., 6000" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" min="0" required />
-        </div>
-        <div class="mb-4">
-          <label for="socialTax" class="block text-sm font-medium text-gray-700">
-            Social Security & Medicare Taxes ($)
-            <span class="text-blue-500 cursor-help" title="Enter these taxes if available; otherwise, they will be calculated.">?</span>
-          </label>
-          <input type="number" id="socialTax" placeholder="e.g., 4000" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" min="0" />
-        </div>
-        <!-- Dependents Section -->
-        <div id="dependentsSection" class="mb-4">
-          <label for="numDependents" class="block text-sm font-medium text-gray-700">
-            Number of Dependents
-            <span class="text-blue-500 cursor-help" title="Select the number of dependents (children or qualifying relatives) you claim.">?</span>
-          </label>
-          <select id="numDependents" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-            <option value="0">0</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-          </select>
-        </div>
-        <div class="flex justify-between">
-          <button type="button" class="prevBtn bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">Back</button>
-          <button type="button" class="nextBtn bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Next</button>
-        </div>
-      </div>
-      
-      <!-- Step 4: AMT & Self‑Employment Tax Calculations -->
-      <div class="step" data-step="3">
-        <h2 class="text-xl font-semibold mb-4">Step 4: AMT & Self‑Employment Tax</h2>
-        <div class="mb-4">
-          <label for="amtIncome" class="block text-sm font-medium text-gray-700">
-            AMT Adjusted Income ($)
-            <span class="text-blue-500 cursor-help" title="Enter your AMT adjusted income, if applicable.">?</span>
-          </label>
-          <input type="number" id="amtIncome" placeholder="e.g., 50000" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" min="0" />
-        </div>
-        <!-- Self‑Employment Tax Section (only if self‑employed is checked) -->
-        <div id="seTaxDiv" class="mb-4 hidden">
-          <label for="netSEIncome" class="block text-sm font-medium text-gray-700">
-            Net Self‑Employment Income ($)
-            <span class="text-blue-500 cursor-help" title="Enter your net self‑employment income after business expenses.">?</span>
-          </label>
-          <input type="number" id="netSEIncome" placeholder="e.g., 40000" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" min="0" />
-          <p class="text-xs text-gray-500 mt-1">Self‑Employment Tax (approx. 15.3%) is calculated on this amount.</p>
-        </div>
-        <div class="flex justify-between">
-          <button type="button" class="prevBtn bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">Back</button>
-          <button type="button" class="nextBtn bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Next</button>
-        </div>
-      </div>
-      
-      <!-- Step 5: Projections, Deductions Optimizer & Recommendations -->
-      <div class="step" data-step="4">
-        <h2 class="text-xl font-semibold mb-4">Step 5: Projections & Optimizer</h2>
-        <div id="recommendations" class="p-4 bg-gray-50 rounded border border-dashed border-gray-300 text-sm text-gray-600">
-          <em>Your tailored recommendations will appear here.</em>
-        </div>
-        <div class="mt-6">
-          <label for="incomeProjection" class="block text-sm font-medium text-gray-700">
-            Tax Bracket Projection: Adjust Income (% Change)
-          </label>
-          <input type="range" id="incomeProjection" min="-20" max="20" step="1" value="0" class="w-full mt-2" />
-          <p id="projectionText" class="mt-1 text-sm text-gray-600">Current Income Projection: 0% change</p>
-          <div id="projectionResult" class="mt-2 p-4 bg-white rounded shadow text-gray-700">
-            <!-- Dynamic projection details will appear here -->
-            <p>Projected Federal Tax: $0.00</p>
-          </div>
-        </div>
-        <div class="flex justify-between mt-4">
-          <button type="button" class="prevBtn bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">Back</button>
-          <button type="button" class="nextBtn bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Next</button>
-        </div>
-      </div>
-      
-      <!-- Step 6: Summary & Actions -->
-      <div class="step" data-step="5">
-        <h2 class="text-xl font-semibold mb-4">Step 6: Summary & Actions</h2>
-        <div id="taxSummary" class="p-4 bg-gray-50 rounded border border-gray-300 text-gray-700">
-          <p>Please review your details and calculated tax summary below.</p>
-        </div>
-        <div class="mt-4 flex flex-col sm:flex-row sm:justify-end gap-2">
-          <button type="button" id="printBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Print Summary</button>
-          <button type="button" id="exportBtn" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Export Data</button>
-        </div>
-        <div class="flex justify-start mt-4">
-          <button type="button" class="prevBtn bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">Back</button>
-        </div>
-      </div>
-      
-    </form>
-    
-    <!-- Disclaimer -->
-    <div class="mt-6 text-sm text-gray-600">
-      <p>Disclaimer: This estimator is for informational purposes only. Consult a tax professional for official advice.</p>
-      <p class="mt-2 text-red-600 font-bold">Warning: Ensure accuracy to avoid IRS audit risks.</p>
-    </div>
-  </div>
-  
-  <script>
-    /*************** Configuration Data ***************/
-    const standardDeductions = {
-      single: 13850,
-      mfj: 27700,
-      mfs: 13850,
-      hoh: 20800
-    };
+<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center p-4">
 
-    const federalTaxBrackets = {
+  <div class="max-w-lg w-full bg-white shadow-lg rounded-lg p-6 space-y-4">
+    <h1 class="text-2xl font-bold text-center">Tax Refund Estimator</h1>
+
+    <!-- Step 1: Income -->
+    <div class="space-y-2">
+      <label class="block text-sm font-medium text-gray-700">Annual Income ($)</label>
+      <input type="number" id="income" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter your annual income">
+    </div>
+
+    <!-- Step 2: Deductions -->
+    <div class="space-y-2">
+      <label class="block text-sm font-medium text-gray-700">Deductions ($)</label>
+      <input type="number" id="deductions" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter your total deductions">
+    </div>
+
+    <!-- Step 3: Withholdings -->
+    <div class="space-y-2">
+      <label class="block text-sm font-medium text-gray-700">Federal Tax Withheld ($)</label>
+      <input type="number" id="withholdings" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter federal tax withheld">
+    </div>
+
+    <!-- Step 4: Filing Status -->
+    <div class="space-y-2">
+      <label class="block text-sm font-medium text-gray-700">Filing Status</label>
+      <select id="filingStatus" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <option value="single">Single</option>
+        <option value="marriedJointly">Married Filing Jointly</option>
+        <option value="marriedSeparately">Married Filing Separately</option>
+        <option value="headOfHousehold">Head of Household</option>
+      </select>
+    </div>
+
+    <!-- Step 5: State -->
+    <div class="space-y-2">
+      <label class="block text-sm font-medium text-gray-700">State</label>
+      <select id="state" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <option value="AL">Alabama</option>
+        <option value="AK">Alaska</option>
+        <option value="AZ">Arizona</option>
+        <!-- Add all 50 states here -->
+        <option value="WY">Wyoming</option>
+      </select>
+    </div>
+
+    <!-- Results -->
+    <div id="results" class="hidden space-y-4">
+      <h2 class="text-xl font-bold">Results</h2>
+      <p id="refundOrOwed" class="text-lg font-medium"></p>
+      <p id="stateTax" class="text-gray-700"></p>
+    </div>
+
+    <!-- Submit Button -->
+    <button onclick="calculateTax()" class="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition duration-300">
+      Calculate
+    </button>
+  </div>
+
+  <script>
+    // Federal Tax Brackets for 2024 (Placeholder)
+    const federalBrackets = {
       single: [
-        { rate: 0.10, cap: 11000 },
-        { rate: 0.12, cap: 44725 },
-        { rate: 0.22, cap: 95375 },
-        { rate: 0.24, cap: 182100 },
-        { rate: 0.32, cap: 231250 },
-        { rate: 0.35, cap: 578125 },
-        { rate: 0.37, cap: Infinity }
+        { limit: 11000, rate: 0.1 },
+        { limit: 44725, rate: 0.12 },
+        { limit: 95375, rate: 0.22 },
+        { limit: 182100, rate: 0.24 },
+        { limit: 231250, rate: 0.32 },
+        { limit: 578125, rate: 0.35 },
+        { limit: Infinity, rate: 0.37 }
       ],
-      mfj: [
-        { rate: 0.10, cap: 22000 },
-        { rate: 0.12, cap: 89450 },
-        { rate: 0.22, cap: 190750 },
-        { rate: 0.24, cap: 364200 },
-        { rate: 0.32, cap: 462500 },
-        { rate: 0.35, cap: 693750 },
-        { rate: 0.37, cap: Infinity }
+      marriedJointly: [
+        { limit: 22000, rate: 0.1 },
+        { limit: 89450, rate: 0.12 },
+        { limit: 190750, rate: 0.22 },
+        { limit: 364200, rate: 0.24 },
+        { limit: 462500, rate: 0.32 },
+        { limit: 693750, rate: 0.35 },
+        { limit: Infinity, rate: 0.37 }
       ],
-      mfs: [
-        { rate: 0.10, cap: 11000 },
-        { rate: 0.12, cap: 44725 },
-        { rate: 0.22, cap: 95375 },
-        { rate: 0.24, cap: 182100 },
-        { rate: 0.32, cap: 231250 },
-        { rate: 0.35, cap: 346875 },
-        { rate: 0.37, cap: Infinity }
-      ],
-      hoh: [
-        { rate: 0.10, cap: 15700 },
-        { rate: 0.12, cap: 59850 },
-        { rate: 0.22, cap: 95350 },
-        { rate: 0.24, cap: 176250 },
-        { rate: 0.32, cap: 231250 },
-        { rate: 0.35, cap: 578100 },
-        { rate: 0.37, cap: Infinity }
+      headOfHousehold: [
+        { limit: 15700, rate: 0.1 },
+        { limit: 59850, rate: 0.12 },
+        { limit: 95350, rate: 0.22 },
+        { limit: 182100, rate: 0.24 },
+        { limit: 231250, rate: 0.32 },
+        { limit: 578100, rate: 0.35 },
+        { limit: Infinity, rate: 0.37 }
       ]
     };
 
-    // In production, use a reliable API (e.g., Zippopotam.us) for ZIP-to-state mapping.
+    // State Tax Rates (Placeholder)
     const stateTaxRates = {
-      AL: 0.05, AK: 0.00, AZ: 0.045, AR: 0.065, CA: 0.09,
-      CO: 0.0463, CT: 0.0699, DE: 0.066, FL: 0.00, GA: 0.0575,
-      HI: 0.08, ID: 0.069, IL: 0.05, IN: 0.0323, IA: 0.085,
-      KS: 0.057, KY: 0.05, LA: 0.06, ME: 0.0715, MD: 0.0575,
-      MA: 0.05, MI: 0.0425, MN: 0.0785, MS: 0.05, MO: 0.054,
-      MT: 0.06, NE: 0.0684, NV: 0.00, NH: 0.05, NJ: 0.0637,
-      NM: 0.049, NY: 0.0685, NC: 0.0525, ND: 0.022, OH: 0.04997,
-      OK: 0.05, OR: 0.09, PA: 0.0307, RI: 0.0599, SC: 0.07,
-      SD: 0.00, TN: 0.00, TX: 0.00, UT: 0.0495, VT: 0.08,
-      VA: 0.0575, WA: 0.00, WV: 0.065, WI: 0.0765, WY: 0.00
+      AL: 0.05, AK: 0, AZ: 0.0454, /* Add all 50 states */
+      WY: 0.04
     };
 
-    /*************** Multi-Step Navigation ***************/
-    const steps = document.querySelectorAll('.step');
-    const indicators = document.querySelectorAll('.step-indicator');
-    let currentStep = 0;
+    function calculateTax() {
+      const income = parseFloat(document.getElementById('income').value) || 0;
+      const deductions = parseFloat(document.getElementById('deductions').value) || 0;
+      const withholdings = parseFloat(document.getElementById('withholdings').value) || 0;
+      const filingStatus = document.getElementById('filingStatus').value;
+      const state = document.getElementById('state').value;
 
-    document.querySelectorAll('.nextBtn').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        // If leaving Step 1, perform ZIP-to-state lookup
-        if (currentStep === 0) {
-          await lookupStateFromZip();
-        }
-        // If leaving Step 2, process OCR if a file is provided
-        if (currentStep === 1) {
-          await processOCRFile();
-        }
-        if (currentStep < steps.length - 1) {
-          currentStep++;
-          updateSteps();
-          if (currentStep === 4) updateRecommendations();
-          if (currentStep === 5) updateCalculations();
-        }
-      });
-    });
-    document.querySelectorAll('.prevBtn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        if (currentStep > 0) { 
-          currentStep--; 
-          updateSteps(); 
-        }
-      });
-    });
-    function updateSteps() {
-      steps.forEach((step, i) => step.classList.toggle('active', i === currentStep));
-      indicators.forEach((ind, i) => ind.classList.toggle('font-bold', i === currentStep));
-    }
+      const taxableIncome = Math.max(0, income - deductions);
+      const brackets = federalBrackets[filingStatus];
 
-    /*************** Dynamic Field Visibility ***************/
-    const selfEmpCheckbox = document.getElementById('selfEmployed');
-    const businessExpensesDiv = document.getElementById('businessExpensesDiv');
-    const seTaxDiv = document.getElementById('seTaxDiv');
-    selfEmpCheckbox.addEventListener('change', () => {
-      const show = selfEmpCheckbox.checked;
-      businessExpensesDiv.classList.toggle('hidden', !show);
-      seTaxDiv.classList.toggle('hidden', !show);
-    });
-    
-    /*************** ZIP-to-State Lookup (Production Stub) ***************/
-    async function lookupStateFromZip() {
-      const zip = document.getElementById('zipCode').value.trim();
-      if (!zip) return;
-      try {
-        // In production, replace this with a secure fetch call to an API.
-        // Example: fetch(`https://api.zippopotam.us/us/${zip}`)
-        // For demo, we use a simple mapping.
-        let state = "";
-        if (/^90/.test(zip)) state = "CA";
-        else if (/^10/.test(zip)) state = "NY";
-        else if (/^60/.test(zip)) state = "IL";
-        document.getElementById('stateAuto').textContent = state ? `Detected State: ${state}` : "State not detected";
-      } catch (error) {
-        console.error("Error looking up ZIP code:", error);
-        document.getElementById('stateAuto').textContent = "State lookup error";
-      }
-    }
-    
-    /*************** OCR Processing (Production Stub) ***************/
-    async function processOCRFile() {
-      const fileInput = document.getElementById('ocrUpload');
-      if (fileInput.files && fileInput.files.length > 0) {
-        const file = fileInput.files[0];
-        try {
-          // In production, use a secure OCR library/service (e.g., Tesseract.js or a backend API).
-          // For demonstration, we simulate processing and auto-fill sample values.
-          await new Promise(resolve => setTimeout(resolve, 1000)); // simulate processing delay
-          document.getElementById('income').value = 55000;
-          document.getElementById('withholdings').value = 6500;
-          alert("OCR processed: Income and withholdings auto-filled.");
-        } catch (error) {
-          console.error("OCR processing error:", error);
-          alert("Error processing document. Please enter values manually.");
-        }
-      }
-    }
-    
-    /*************** Calculation Functions ***************/
-    function calculateFederalTax(taxableIncome, status) {
-      const brackets = federalTaxBrackets[status];
-      let tax = 0, prevCap = 0;
-      for (const b of brackets) {
-        if (taxableIncome > b.cap) {
-          tax += (b.cap - prevCap) * b.rate;
-          prevCap = b.cap;
+      let federalTax = 0;
+      let prevLimit = 0;
+      for (const bracket of brackets) {
+        if (taxableIncome > bracket.limit) {
+          federalTax += (bracket.limit - prevLimit) * bracket.rate;
         } else {
-          tax += (taxableIncome - prevCap) * b.rate;
+          federalTax += (taxableIncome - prevLimit) * bracket.rate;
           break;
         }
+        prevLimit = bracket.limit;
       }
-      return tax;
+
+      const stateTaxRate = stateTaxRates[state] || 0;
+      const stateTax = taxableIncome * stateTaxRate;
+
+      const totalTax = federalTax + stateTax;
+      const refundOrOwed = withholdings - totalTax;
+
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.classList.remove('hidden');
+
+      const refundOrOwedElement = document.getElementById('refundOrOwed');
+      refundOrOwedElement.textContent = refundOrOwed >= 0
+        ? `You will receive a refund of $${Math.abs(refundOrOwed).toFixed(2)}`
+        : `You owe $${Math.abs(refundOrOwed).toFixed(2)}`;
+      refundOrOwedElement.className = refundOrOwed >= 0
+        ? 'text-green-600 text-lg font-medium'
+        : 'text-red-600 text-lg font-medium';
+
+      document.getElementById('stateTax').textContent = `State Tax: $${stateTax.toFixed(2)}`;
     }
-    
-    function calculateAMT(amtIncome) {
-      return amtIncome <= 220700 ? amtIncome * 0.26 : (220700 * 0.26) + ((amtIncome - 220700) * 0.28);
-    }
-    
-    function calculateFICA(income) {
-      const wageBase = 160200;
-      const ssTax = Math.min(income, wageBase) * 0.062;
-      const medicare = income * 0.0145;
-      return ssTax + medicare;
-    }
-    
-    function calculateSelfEmploymentTax(netSEIncome) {
-      return netSEIncome * 0.153;
-    }
-    
-    /*************** Tax Bracket Projection ***************/
-    const incomeProjectionInput = document.getElementById('incomeProjection');
-    incomeProjectionInput.addEventListener('input', updateProjection);
-    function updateProjection() {
-      const changePercent = parseInt(incomeProjectionInput.value);
-      document.getElementById('projectionText').textContent = `Current Income Projection: ${changePercent}% change`;
-      const baseIncome = parseFloat(document.getElementById('income').value) || 0;
-      const projectedIncome = baseIncome * (1 + changePercent / 100);
-      const filingStatus = document.getElementById('filingStatus').value;
-      const deductionsInput = parseFloat(document.getElementById('deductions').value);
-      const deductionValue = deductionsInput && deductionsInput > 0 ? deductionsInput : standardDeductions[filingStatus];
-      const taxableProjected = Math.max(projectedIncome - deductionValue, 0);
-      const projFederalTax = calculateFederalTax(taxableProjected, filingStatus);
-      document.getElementById('projectionResult').innerHTML = `<p>Projected Federal Tax for $${projectedIncome.toFixed(2)} income: $${projFederalTax.toFixed(2)}</p>`;
-    }
-    
-    /*************** Recommendations & Deductions Optimizer ***************/
-    function updateRecommendations() {
-      const income = parseFloat(document.getElementById('income').value) || 0;
-      let deductions = parseFloat(document.getElementById('deductions').value);
-      const filingStatus = document.getElementById('filingStatus').value;
-      const recDiv = document.getElementById('recommendations');
-      const standard = standardDeductions[filingStatus] || 0;
-      let recs = [];
-      if (!deductions || deductions < standard) {
-        recs.push(`Consider taking the standard deduction of $${standard} instead of itemizing.`);
-      } else {
-        recs.push("Your itemized deductions exceed the standard deduction.");
-      }
-      if (income < 50000 && filingStatus === "single") {
-        recs.push("You may qualify for the Earned Income Tax Credit.");
-      }
-      recs.push("Review eligibility for credits like the Child Tax Credit.");
-      if (deductions > income * 0.8) {
-        recs.push("<span class='text-red-600 font-bold'>Audit Risk Warning:</span> Deductions unusually high relative to income.");
-      }
-      recDiv.innerHTML = recs.map(r => `<p>${r}</p>`).join('');
-      updateProjection();
-    }
-    
-    /*************** Main Calculation & Summary ***************/
-    function updateCalculations() {
-      const filingStatus = document.getElementById('filingStatus').value;
-      let deductions = parseFloat(document.getElementById('deductions').value);
-      const income = parseFloat(document.getElementById('income').value) || 0;
-      const withholdings = parseFloat(document.getElementById('withholdings').value) || 0;
-      const socialTaxInput = parseFloat(document.getElementById('socialTax').value) || 0;
-      const amtIncome = parseFloat(document.getElementById('amtIncome').value) || 0;
-      if (!deductions || deductions < 1) { 
-        deductions = standardDeductions[filingStatus] || 0; 
-      }
-      const businessExpenses = parseFloat(document.getElementById('businessExpenses').value) || 0;
-      const adjustedIncome = income - businessExpenses;
-      const taxableIncome = Math.max(adjustedIncome - deductions, 0);
-      const federalTax = calculateFederalTax(taxableIncome, filingStatus);
-      const amtTax = amtIncome > 0 ? calculateAMT(amtIncome) : 0;
-      const totalFederalTax = Math.max(federalTax, amtTax);
-      const ficaTax = socialTaxInput || calculateFICA(income);
-      let seTax = 0;
-      if (selfEmpCheckbox.checked) {
-        const netSEIncome = parseFloat(document.getElementById('netSEIncome').value) || 0;
-        seTax = calculateSelfEmploymentTax(netSEIncome);
-      }
-      // Dependents: $2000 per qualifying dependent (production would require detailed rules)
-      const creditPerDependent = 2000;
-      const numDependents = parseInt(document.getElementById('numDependents').value) || 0;
-      const dependentCredit = numDependents * creditPerDependent;
-      
-      // Determine state tax based on ZIP-to-state lookup
-      let stateCode = "";
-      const detectedStateText = document.getElementById('stateAuto').textContent;
-      if (detectedStateText.includes("Detected State:")) {
-        stateCode = detectedStateText.replace("Detected State:", "").trim();
-      }
-      let stateTax = 0;
-      if (stateCode && stateTaxRates[stateCode]) {
-        stateTax = taxableIncome * stateTaxRates[stateCode];
-      }
-      
-      const totalTaxLiability = totalFederalTax + stateTax + ficaTax + seTax;
-      const adjustedTaxLiability = totalTaxLiability - dependentCredit;
-      const refundOrOwed = withholdings - adjustedTaxLiability;
-      
-      let summary = `<p><strong>Taxable Income:</strong> $${taxableIncome.toFixed(2)}</p>`;
-      summary += `<p><strong>Federal Tax:</strong> $${federalTax.toFixed(2)}</p>`;
-      if (amtTax > federalTax) { 
-        summary += `<p class="text-orange-600"><strong>AMT Applied:</strong> $${amtTax.toFixed(2)}</p>`; 
-      }
-      summary += `<p><strong>State Tax:</strong> $${stateTax.toFixed(2)}</p>`;
-      summary += `<p><strong>FICA (Social Security & Medicare):</strong> $${ficaTax.toFixed(2)}</p>`;
-      if (selfEmpCheckbox.checked) { 
-        summary += `<p><strong>Self‑Employment Tax:</strong> $${seTax.toFixed(2)}</p>`; 
-      }
-      summary += `<p><strong>Dependent Credit:</strong> -$${dependentCredit.toFixed(2)}</p>`;
-      summary += `<p class="mt-2 border-t pt-2"><strong>Total Tax Liability after Credits:</strong> $${adjustedTaxLiability.toFixed(2)}</p>`;
-      
-      if (refundOrOwed >= 0) {
-        summary += `<p class="mt-2 text-green-600 font-bold">Expected Refund: $${refundOrOwed.toFixed(2)}</p>`;
-      } else {
-        summary += `<p class="mt-2 text-red-600 font-bold">Tax Owed: $${Math.abs(refundOrOwed).toFixed(2)}</p>`;
-      }
-      document.getElementById('taxSummary').innerHTML = summary;
-    }
-    
-    /*************** Real-Time Updates ***************/
-    document.querySelectorAll('#taxForm input, #taxForm select').forEach(el => {
-      el.addEventListener('input', () => {
-        if (currentStep === 5) updateCalculations();
-        if (currentStep === 4) updateRecommendations();
-      });
-      el.addEventListener('change', () => {
-        if (currentStep === 5) updateCalculations();
-        if (currentStep === 4) updateRecommendations();
-      });
-    });
-    
-    /*************** Print & Export Functionality ***************/
-    document.getElementById('printBtn').addEventListener('click', () => window.print());
-    document.getElementById('exportBtn').addEventListener('click', () => {
-      const data = {
-        filingStatus: document.getElementById('filingStatus').value,
-        zipCode: document.getElementById('zipCode').value,
-        selfEmployed: selfEmpCheckbox.checked,
-        businessExpenses: document.getElementById('businessExpenses').value,
-        income: document.getElementById('income').value,
-        deductions: document.getElementById('deductions').value,
-        withholdings: document.getElementById('withholdings').value,
-        socialTax: document.getElementById('socialTax').value,
-        amtIncome: document.getElementById('amtIncome').value,
-        netSEIncome: document.getElementById('netSEIncome').value,
-        numDependents: document.getElementById('numDependents').value
-      };
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
-      const a = document.createElement("a");
-      a.setAttribute("href", dataStr);
-      a.setAttribute("download", "tax_data.json");
-      a.click();
-    });
   </script>
 </body>
 </html>
