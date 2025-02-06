@@ -12,7 +12,7 @@
     }
     .tooltip .tooltiptext {
       visibility: hidden;
-      width: 200px;
+      width: 250px;
       background-color: #333;
       color: #fff;
       text-align: center;
@@ -39,19 +39,43 @@
 
     <!-- Step 1: Income -->
     <div class="space-y-2">
-      <label class="block text-sm font-medium text-gray-700">Annual Income ($)</label>
+      <label class="block text-sm font-medium text-gray-700">
+        Annual Income ($)
+        <span class="tooltip">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block ml-1 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span class="tooltiptext">Find this on Form W-2, Box 1 (Wages, tips, other compensation).</span>
+        </span>
+      </label>
       <input type="number" id="income" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter your annual income">
     </div>
 
     <!-- Step 2: Deductions -->
     <div class="space-y-2">
-      <label class="block text-sm font-medium text-gray-700">Deductions ($)</label>
+      <label class="block text-sm font-medium text-gray-700">
+        Deductions ($)
+        <span class="tooltip">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block ml-1 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span class="tooltiptext">Include itemized deductions (e.g., mortgage interest, medical expenses) or standard deduction.</span>
+        </span>
+      </label>
       <input type="number" id="deductions" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter your total deductions">
     </div>
 
     <!-- Step 3: Withholdings -->
     <div class="space-y-2">
-      <label class="block text-sm font-medium text-gray-700">Federal Tax Withheld ($)</label>
+      <label class="block text-sm font-medium text-gray-700">
+        Federal Tax Withheld ($)
+        <span class="tooltip">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block ml-1 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span class="tooltiptext">Find this on Form W-2, Box 2 (Federal income tax withheld).</span>
+        </span>
+      </label>
       <input type="number" id="withholdings" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter federal tax withheld">
     </div>
 
@@ -83,6 +107,8 @@
       <h2 class="text-xl font-bold">Results</h2>
       <p id="refundOrOwed" class="text-lg font-medium"></p>
       <p id="stateTax" class="text-gray-700"></p>
+      <p id="auditRisk" class="text-yellow-600"></p>
+      <p id="recommendations" class="text-blue-600"></p>
     </div>
 
     <!-- Submit Button -->
@@ -169,6 +195,22 @@
         : 'text-red-600 text-lg font-medium';
 
       document.getElementById('stateTax').textContent = `State Tax: $${stateTax.toFixed(2)}`;
+
+      // Audit Risk Warning
+      const auditRiskElement = document.getElementById('auditRisk');
+      if (deductions > income * 0.5) {
+        auditRiskElement.textContent = "⚠️ High audit risk due to large deductions.";
+      } else {
+        auditRiskElement.textContent = "";
+      }
+
+      // Smart Recommendations
+      const recommendationsElement = document.getElementById('recommendations');
+      if (deductions === 0) {
+        recommendationsElement.textContent = "💡 Consider itemizing deductions if you have significant expenses like mortgage interest or medical bills.";
+      } else {
+        recommendationsElement.textContent = "";
+      }
     }
   </script>
 </body>
